@@ -10,14 +10,28 @@ import numpy as np
 
 #SEPARACION DE LOS DATOS
 data_train = pd.read_csv('train.csv')
+data_test = pd.read_csv('test.csv')
+
 y_train = data_train.iloc[:,1].values
 X_train = data_train.iloc[:, [2,4,5,6,7,11]].values
 
-data_test = pd.read_csv('test.csv')
 X_test = data_test.iloc[:, [1,3,4,5,6,10]].values
 y_test = pd.read_csv('gender_submission.csv')
 y_test = y_test.iloc[:,1].values
 
+
+#VISUALIZACION DE LOS DATOS
+data_train.groupby('Sex')['Survived'].sum().plot(kind='bar', legend=True, rot=0)
+plt.title("SOBREVIVIENTES POR SEXO")
+plt.show()
+
+data_train.groupby('Embarked')['Survived'].sum().plot(kind='bar',legend=True, rot=0)
+plt.title('SOBREVIVIENTES POR LUGAR DE EMBARCAMIENTO')
+plt.show()
+
+data_train.groupby('Pclass')['Survived'].sum().plot(kind='bar',legend=True, rot=0)
+plt.title('SOBREVIVIENTES POR CLASE A LA QUE PERTENECE')
+plt.show()
 
 #TRATAMIENTO DE LOS  NAs
 from sklearn.impute import SimpleImputer
@@ -34,6 +48,7 @@ X_train[:,5:6]=NAsData(X_train[:,5:6],'most_frequent')
 
 X_test[:,2:3]=NAsData(X_test[:,2:3],'mean')
 X_test[:,5:6]=NAsData(X_test[:,5:6],'most_frequent')
+
 
 #CODIFICAR DATOS CATEGORICOS
 from sklearn import preprocessing
@@ -68,51 +83,6 @@ VISUALIZACION DE X_train y X_test
 5    : SibSp
 6    : Parch
 '''
-
-#VISUALIZACION DE LOS DATOS
-X_edad = np.array(["0-10","11-20","21-30","31-40","41-50","51-60","61-70","71-80"])
-X_genero = np.array(["male","female"])
-
-
-y_edad = np.zeros(8)
-y_genero = np.zeros(2)
-
-def sumaCaracteristicas(arrayX, arrayY, indiceX, indiceY, cond1, cond2, i):
-    if arrayX[i,indiceX]>=cond1 and arrayX[i,indiceX]<=cond2:
-            arrayY[indiceY] = arrayY[indiceY]+1
-    return arrayY[indiceY]        
-
-for i in range(0,891):
-    if y_train[i]==1:
-        #SUMA POR EDADES
-        y_edad[0] = sumaCaracteristicas(X_train,y_edad,4, 0, 0, 10, i)
-        y_edad[1] = sumaCaracteristicas(X_train,y_edad,4, 1, 11, 20, i)
-        y_edad[2] = sumaCaracteristicas(X_train,y_edad,4, 2, 21, 30, i)
-        y_edad[3] = sumaCaracteristicas(X_train,y_edad,4, 3, 31, 40, i)
-        y_edad[4] = sumaCaracteristicas(X_train,y_edad,4, 4, 41, 50, i)
-        y_edad[5] = sumaCaracteristicas(X_train,y_edad,4, 5, 51, 60, i)
-        y_edad[6] = sumaCaracteristicas(X_train,y_edad,4, 6, 61, 70, i)
-        y_edad[7] = sumaCaracteristicas(X_train,y_edad,4, 7, 71, 80, i)
-        
-        #SUMA POR GENERO
-        if X_train[i,3]==1:
-            y_genero[0] = y_genero[0]+1
-        else:
-            y_genero[1] = y_genero[1]+1
-            
-
-plt.barh(X_edad, y_edad)
-plt.ylabel("Edad pasajero")
-plt.xlabel("Cantidad Sobrevivientes")
-plt.title("Edad de Sobrevivientes")
-plt.show()
-
-plt.bar(X_genero, y_genero)
-plt.xlabel("Genero pasajero")
-plt.ylabel("Cantidad Sobrevivientes")
-plt.title("Genero de Sobrevivientes")
-plt.show()
-
 
 #CONSTRUCCION DEL MODELO
 from sklearn.ensemble import RandomForestClassifier
